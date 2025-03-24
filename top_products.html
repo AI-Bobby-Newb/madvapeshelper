@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top Products - Vape Store Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
@@ -15,27 +15,30 @@
                 <h2>Vape Store</h2>
             </div>
             <ul class="nav-links">
-                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="monthly_analysis.html"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
-                <li><a href="product_analysis.html"><i class="fas fa-box"></i> Product Analysis</a></li>
-                <li><a href="category_analysis.html"><i class="fas fa-tags"></i> Category Analysis</a></li>
-                <li class="active"><a href="top_products.html"><i class="fas fa-trophy"></i> Top Products</a></li>
-                <li><a href="business_insights.html"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
+                <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/monthly_analysis"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
+                <li><a href="/product_analysis"><i class="fas fa-box"></i> Product Analysis</a></li>
+                <li><a href="/category_analysis"><i class="fas fa-tags"></i> Category Analysis</a></li>
+                <li class="active"><a href="/top_products"><i class="fas fa-trophy"></i> Top Products</a></li>
+                <li><a href="/business_insights"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
             </ul>
             <div class="data-quality">
                 <div class="quality-score">
-                    <div class="score-circle" style="--percent: 85%">
-                        <span>85%</span>
+                    <div class="score-circle" style="--percent: {{ quality_score }}%">
+                        <span>{{ quality_score }}%</span>
                     </div>
                     <h4>Data Quality</h4>
                 </div>
+                {% if quality_warnings %}
                 <div class="quality-warnings">
                     <h5>Warnings:</h5>
                     <ul>
-                        <li>Data is 2 months old</li>
-                        <li>1 missing month in data</li>
+                        {% for warning in quality_warnings %}
+                        <li>{{ warning }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </nav>
 
@@ -45,266 +48,257 @@
                     <h1>Top Products</h1>
                     <div class="time-period">
                         <span>Data Period: </span>
-                        <span class="highlight">Jan 2024 - Mar 2024</span>
+                        {% if months %}
+                        <span class="highlight">{{ months[0] }} - {{ months[-1] }}</span>
+                        {% else %}
+                        <span class="highlight">No data available</span>
+                        {% endif %}
                     </div>
                 </div>
             </header>
 
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h2>Top 5 Products by Revenue</h2>
-                    <canvas id="topRevenueChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h2>Top 5 Products by Units Sold</h2>
-                    <canvas id="topUnitsChart"></canvas>
+            <div class="filter-controls">
+                <h2>Top Products Analysis</h2>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="displayCount">Display:</label>
+                        <select id="displayCount">
+                            <option value="10">Top 10</option>
+                            <option value="20">Top 20</option>
+                            <option value="50">Top 50</option>
+                            <option value="100">Top 100</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="metricType">Metric:</label>
+                        <select id="metricType">
+                            <option value="revenue">By Revenue</option>
+                            <option value="units">By Units Sold</option>
+                            <option value="price">By Price (High to Low)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <div class="table-container">
-                <h2>Complete Product Rankings</h2>
-                <table class="data-table">
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h2>Top Products Distribution</h2>
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Top Products by Category</h2>
+                    <canvas id="categoryDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-container full-width">
+                <table id="topProductsTable" class="data-table">
                     <thead>
                         <tr>
                             <th>Rank</th>
-                            <th>Product Name</th>
+                            <th>Product</th>
                             <th>Category</th>
-                            <th>Net Sales</th>
+                            <th>Revenue</th>
                             <th>Units Sold</th>
-                            <th>Avg Price</th>
-                            <th>Revenue Share</th>
+                            <th>Avg. Price</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>VooPoo Drag X</td>
-                            <td>Devices</td>
-                            <td>$23,250.00</td>
-                            <td>465</td>
-                            <td>$50.00</td>
-                            <td>18.5%</td>
+                        {% for product in product_data|sort(attribute='Net_Sales', reverse=True) %}
+                        <tr data-revenue="{{ product.Net_Sales }}" data-units="{{ product.Sold }}" data-price="{{ product.Avg_Price }}">
+                            <td class="rank">{{ loop.index }}</td>
+                            <td>{{ product.Name }}</td>
+                            <td>{{ product.Category_Name }}</td>
+                            <td>${{ "{:,.2f}".format(product.Net_Sales) }}</td>
+                            <td>{{ "{:,}".format(product.Sold) }}</td>
+                            <td>${{ "{:.2f}".format(product.Avg_Price) }}</td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>SMOK Nord 4</td>
-                            <td>Devices</td>
-                            <td>$16,100.00</td>
-                            <td>412</td>
-                            <td>$39.08</td>
-                            <td>12.8%</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Geekvape Aegis Legend</td>
-                            <td>Devices</td>
-                            <td>$12,825.00</td>
-                            <td>285</td>
-                            <td>$45.00</td>
-                            <td>10.2%</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Uwell Caliburn G</td>
-                            <td>Pods</td>
-                            <td>$12,250.00</td>
-                            <td>387</td>
-                            <td>$31.65</td>
-                            <td>9.7%</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Vaporesso XROS</td>
-                            <td>Pods</td>
-                            <td>$10,440.00</td>
-                            <td>332</td>
-                            <td>$31.45</td>
-                            <td>8.3%</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>Juul Device Kit</td>
-                            <td>Pods</td>
-                            <td>$8,750.00</td>
-                            <td>250</td>
-                            <td>$35.00</td>
-                            <td>7.0%</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>Vaporesso Gen S</td>
-                            <td>Devices</td>
-                            <td>$7,500.00</td>
-                            <td>150</td>
-                            <td>$50.00</td>
-                            <td>6.0%</td>
-                        </tr>
-                        <tr>
-                            <td>8</td>
-                            <td>Naked 100 E-Liquid</td>
-                            <td>E-Liquids</td>
-                            <td>$6,240.00</td>
-                            <td>312</td>
-                            <td>$20.00</td>
-                            <td>5.0%</td>
-                        </tr>
-                        <tr>
-                            <td>9</td>
-                            <td>Lost Vape Orion</td>
-                            <td>Pods</td>
-                            <td>$5,760.00</td>
-                            <td>120</td>
-                            <td>$48.00</td>
-                            <td>4.6%</td>
-                        </tr>
-                        <tr>
-                            <td>10</td>
-                            <td>SMOK RPM40</td>
-                            <td>Pods</td>
-                            <td>$5,250.00</td>
-                            <td>175</td>
-                            <td>$30.00</td>
-                            <td>4.2%</td>
-                        </tr>
-                        <tr>
-                            <td>11</td>
-                            <td>Vaporesso SKY SOLO</td>
-                            <td>Devices</td>
-                            <td>$4,700.00</td>
-                            <td>94</td>
-                            <td>$50.00</td>
-                            <td>3.7%</td>
-                        </tr>
-                        <tr>
-                            <td>12</td>
-                            <td>Aspire PockeX</td>
-                            <td>Pods</td>
-                            <td>$4,300.00</td>
-                            <td>215</td>
-                            <td>$20.00</td>
-                            <td>3.4%</td>
-                        </tr>
-                        <tr>
-                            <td>13</td>
-                            <td>Jam Monster E-Liquid</td>
-                            <td>E-Liquids</td>
-                            <td>$3,960.00</td>
-                            <td>198</td>
-                            <td>$20.00</td>
-                            <td>3.1%</td>
-                        </tr>
-                        <tr>
-                            <td>14</td>
-                            <td>Cloud Nurdz E-Liquid</td>
-                            <td>E-Liquids</td>
-                            <td>$3,425.00</td>
-                            <td>137</td>
-                            <td>$25.00</td>
-                            <td>2.7%</td>
-                        </tr>
-                        <tr>
-                            <td>15</td>
-                            <td>Innokin Endura T18</td>
-                            <td>Devices</td>
-                            <td>$3,000.00</td>
-                            <td>100</td>
-                            <td>$30.00</td>
-                            <td>2.4%</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
-            </div>
-
-            <div class="available-periods">
-                <h3>Available Data Periods</h3>
-                <div class="timeline">
-                    <div class="year-group">
-                        <div class="year">2024</div>
-                        <div class="months">
-                            <div class="month">Jan</div>
-                            <div class="month">Feb</div>
-                            <div class="month">Mar</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Top 5 Products by Revenue
-            const topRevenueCtx = document.getElementById('topRevenueChart').getContext('2d');
-            const topRevenueChart = new Chart(topRevenueCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['VooPoo Drag X', 'SMOK Nord 4', 'Geekvape Aegis Legend', 'Uwell Caliburn G', 'Vaporesso XROS'],
-                    datasets: [{
-                        label: 'Revenue ($)',
-                        data: [23250, 16100, 12825, 12250, 10440],
-                        backgroundColor: '#4A6FDC',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
+            // Initial display setup
+            const displayCount = document.getElementById('displayCount');
+            const metricType = document.getElementById('metricType');
+            const productTable = document.getElementById('topProductsTable');
+            const rows = productTable.querySelectorAll('tbody tr');
+            
+            // Initial charting with default options
+            updateCharts();
+            
+            // Event listeners for filters
+            displayCount.addEventListener('change', function() {
+                updateTableDisplay();
+                updateCharts();
+            });
+            
+            metricType.addEventListener('change', function() {
+                updateTableDisplay();
+                updateCharts();
+            });
+            
+            // Function to update table display based on filters
+            function updateTableDisplay() {
+                const count = parseInt(displayCount.value);
+                const metric = metricType.value;
+                
+                // Sort rows based on selected metric
+                const sortedRows = Array.from(rows).sort((a, b) => {
+                    if (metric === 'revenue') {
+                        return parseFloat(b.dataset.revenue) - parseFloat(a.dataset.revenue);
+                    } else if (metric === 'units') {
+                        return parseFloat(b.dataset.units) - parseFloat(a.dataset.units);
+                    } else if (metric === 'price') {
+                        return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    }
+                    return 0;
+                });
+                
+                // Update display and rankings
+                const tbody = productTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                sortedRows.forEach((row, index) => {
+                    if (index < count) {
+                        const newRow = row.cloneNode(true);
+                        newRow.querySelector('.rank').textContent = index + 1;
+                        tbody.appendChild(newRow);
+                    }
+                });
+            }
+            
+            // Function to update charts based on filters
+            function updateCharts() {
+                const count = parseInt(displayCount.value);
+                const metric = metricType.value;
+                
+                // Get the sorted rows
+                const sortedRows = Array.from(rows).sort((a, b) => {
+                    if (metric === 'revenue') {
+                        return parseFloat(b.dataset.revenue) - parseFloat(a.dataset.revenue);
+                    } else if (metric === 'units') {
+                        return parseFloat(b.dataset.units) - parseFloat(a.dataset.units);
+                    } else if (metric === 'price') {
+                        return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    }
+                    return 0;
+                }).slice(0, count);
+                
+                // Prepare data for charts
+                const labels = sortedRows.map(row => row.cells[1].textContent);
+                let values;
+                let dataLabel;
+                
+                if (metric === 'revenue') {
+                    values = sortedRows.map(row => parseFloat(row.dataset.revenue));
+                    dataLabel = 'Revenue ($)';
+                } else if (metric === 'units') {
+                    values = sortedRows.map(row => parseFloat(row.dataset.units));
+                    dataLabel = 'Units Sold';
+                } else {
+                    values = sortedRows.map(row => parseFloat(row.dataset.price));
+                    dataLabel = 'Average Price ($)';
+                }
+                
+                // Top Products Chart
+                const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+                if (window.topProductsChart) window.topProductsChart.destroy();
+                
+                window.topProductsChart = new Chart(topProductsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: dataLabel,
+                            data: values,
+                            backgroundColor: 'rgba(74, 111, 220, 0.7)',
+                            borderColor: 'rgba(74, 111, 220, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Revenue: $${context.raw.toLocaleString()}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        if (metric === 'revenue' || metric === 'price') {
+                                            return '$' + value.toLocaleString();
+                                        }
+                                        return value.toLocaleString();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-
-            // Top 5 Products by Units Sold
-            const topUnitsCtx = document.getElementById('topUnitsChart').getContext('2d');
-            const topUnitsChart = new Chart(topUnitsCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['VooPoo Drag X', 'SMOK Nord 4', 'Uwell Caliburn G', 'Vaporesso XROS', 'Naked 100 E-Liquid'],
-                    datasets: [{
-                        label: 'Units Sold',
-                        data: [465, 412, 387, 332, 312],
-                        backgroundColor: '#6C8EE3',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
+                });
+                
+                // Category Distribution Chart
+                const categories = {};
+                sortedRows.forEach(row => {
+                    const category = row.cells[2].textContent;
+                    if (!categories[category]) {
+                        categories[category] = 0;
+                    }
+                    categories[category]++;
+                });
+                
+                const categoryLabels = Object.keys(categories);
+                const categoryData = Object.values(categories);
+                
+                const categoryDistributionCtx = document.getElementById('categoryDistributionChart').getContext('2d');
+                if (window.categoryDistributionChart) window.categoryDistributionChart.destroy();
+                
+                window.categoryDistributionChart = new Chart(categoryDistributionCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            data: categoryData,
+                            backgroundColor: [
+                                '#4A6FDC', '#6C8EE3', '#8FACEA', '#B1CAF1', '#D3E9F8',
+                                '#34C759', '#5ED97C', '#88E29F', '#B2EAC2', '#DCF5E5',
+                                '#FF9500', '#FFA733', '#FFB966', '#FFCC99', '#FFDDCC',
+                                '#FF3B30', '#FF6259', '#FF8982', '#FFAFAC', '#FFD5D5'
+                            ],
+                            borderWidth: 1
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
+            
+            // Initial table display
+            updateTableDisplay();
         });
     </script>
 </body>

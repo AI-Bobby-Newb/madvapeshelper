@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Insights - Vape Store Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
@@ -15,27 +15,30 @@
                 <h2>Vape Store</h2>
             </div>
             <ul class="nav-links">
-                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="monthly_analysis.html"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
-                <li><a href="product_analysis.html"><i class="fas fa-box"></i> Product Analysis</a></li>
-                <li><a href="category_analysis.html"><i class="fas fa-tags"></i> Category Analysis</a></li>
-                <li><a href="top_products.html"><i class="fas fa-trophy"></i> Top Products</a></li>
-                <li class="active"><a href="business_insights.html"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
+                <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/monthly_analysis"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
+                <li><a href="/product_analysis"><i class="fas fa-box"></i> Product Analysis</a></li>
+                <li><a href="/category_analysis"><i class="fas fa-tags"></i> Category Analysis</a></li>
+                <li><a href="/top_products"><i class="fas fa-trophy"></i> Top Products</a></li>
+                <li class="active"><a href="/business_insights"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
             </ul>
             <div class="data-quality">
                 <div class="quality-score">
-                    <div class="score-circle" style="--percent: 85%">
-                        <span>85%</span>
+                    <div class="score-circle" style="--percent: {{ quality_score }}%">
+                        <span>{{ quality_score }}%</span>
                     </div>
                     <h4>Data Quality</h4>
                 </div>
+                {% if quality_warnings %}
                 <div class="quality-warnings">
                     <h5>Warnings:</h5>
                     <ul>
-                        <li>Data is 2 months old</li>
-                        <li>1 missing month in data</li>
+                        {% for warning in quality_warnings %}
+                        <li>{{ warning }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </nav>
 
@@ -45,7 +48,11 @@
                     <h1>Business Insights</h1>
                     <div class="time-period">
                         <span>Data Period: </span>
-                        <span class="highlight">Jan 2024 - Mar 2024</span>
+                        {% if months %}
+                        <span class="highlight">{{ months[0] }} - {{ months[-1] }}</span>
+                        {% else %}
+                        <span class="highlight">No data available</span>
+                        {% endif %}
                     </div>
                 </div>
             </header>
@@ -60,7 +67,7 @@
                         </div>
                         <div class="stat-details">
                             <h3>Total Revenue</h3>
-                            <p class="stat-value">$125,750.00</p>
+                            <p class="stat-value">${{ "{:,.2f}".format(total_revenue) }}</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -69,7 +76,7 @@
                         </div>
                         <div class="stat-details">
                             <h3>Units Sold</h3>
-                            <p class="stat-value">4,235</p>
+                            <p class="stat-value">{{ "{:,}".format(total_units) }}</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -78,7 +85,7 @@
                         </div>
                         <div class="stat-details">
                             <h3>Avg Price</h3>
-                            <p class="stat-value">$29.69</p>
+                            <p class="stat-value">${{ "{:.2f}".format(avg_price) }}</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -87,7 +94,7 @@
                         </div>
                         <div class="stat-details">
                             <h3>Products</h3>
-                            <p class="stat-value">86</p>
+                            <p class="stat-value">{{ total_products }}</p>
                         </div>
                     </div>
                 </div>
@@ -121,51 +128,17 @@
                     <div class="insight-card">
                         <h3>Top 5 Products by Revenue Share</h3>
                         <div class="progress-bars">
+                            {% for product in product_metrics|sort(attribute='Revenue_Share', reverse=True)[:5] %}
                             <div class="progress-item">
                                 <div class="progress-label">
-                                    <span>VooPoo Drag X</span>
-                                    <span>18.5%</span>
+                                    <span>{{ product.Name }}</span>
+                                    <span>{{ "{:.1f}%".format(product.Revenue_Share) }}</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress" style="width: 18.5%;"></div>
+                                    <div class="progress" style="width: {{ product.Revenue_Share }}%;"></div>
                                 </div>
                             </div>
-                            <div class="progress-item">
-                                <div class="progress-label">
-                                    <span>SMOK Nord 4</span>
-                                    <span>12.8%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 12.8%;"></div>
-                                </div>
-                            </div>
-                            <div class="progress-item">
-                                <div class="progress-label">
-                                    <span>Geekvape Aegis Legend</span>
-                                    <span>10.2%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 10.2%;"></div>
-                                </div>
-                            </div>
-                            <div class="progress-item">
-                                <div class="progress-label">
-                                    <span>Uwell Caliburn G</span>
-                                    <span>9.7%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 9.7%;"></div>
-                                </div>
-                            </div>
-                            <div class="progress-item">
-                                <div class="progress-label">
-                                    <span>Vaporesso XROS</span>
-                                    <span>8.3%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress" style="width: 8.3%;"></div>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                     
@@ -198,9 +171,9 @@
                             <h3>Promote Top Performers</h3>
                             <p>Focus marketing efforts on your top-performing products that contribute significantly to revenue:</p>
                             <ul>
-                                <li><strong>VooPoo Drag X</strong>: $23,250.00 (18.5% of revenue)</li>
-                                <li><strong>SMOK Nord 4</strong>: $16,100.00 (12.8% of revenue)</li>
-                                <li><strong>Geekvape Aegis Legend</strong>: $12,825.00 (10.2% of revenue)</li>
+                                {% for product in product_metrics|sort(attribute='Net_Sales', reverse=True)[:3] %}
+                                <li><strong>{{ product.Name }}</strong>: ${{ "{:,.2f}".format(product.Net_Sales) }} ({{ "{:.1f}%".format(product.Revenue_Share) }} of revenue)</li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -214,9 +187,9 @@
                             <h3>Price Optimization Opportunities</h3>
                             <p>Consider price adjustments for these high-volume products to maximize revenue:</p>
                             <ul>
-                                <li><strong>SMOK Nord 4</strong>: 412 units sold at $39.08 average price</li>
-                                <li><strong>Uwell Caliburn G</strong>: 387 units sold at $31.65 average price</li>
-                                <li><strong>Vaporesso XROS</strong>: 332 units sold at $31.45 average price</li>
+                                {% for product in product_metrics|sort(attribute='Sold', reverse=True)[:3] %}
+                                <li><strong>{{ product.Name }}</strong>: {{ "{:,}".format(product.Sold) }} units sold at ${{ "{:.2f}".format(product.Avg_Price) }} average price</li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -230,9 +203,9 @@
                             <h3>Inventory Focus</h3>
                             <p>Ensure optimal inventory levels for these high-revenue products:</p>
                             <ul>
-                                <li><strong>VooPoo Drag X</strong> (Devices)</li>
-                                <li><strong>SMOK Nord 4</strong> (Devices)</li>
-                                <li><strong>Geekvape Aegis Legend</strong> (Devices)</li>
+                                {% for product in product_metrics|sort(attribute='Net_Sales', reverse=True)[:3] %}
+                                <li><strong>{{ product.Name }}</strong> ({{ product.Category_Name }})</li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -256,86 +229,16 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for product in product_metrics|sort(attribute='Net_Sales', reverse=True)[:20] %}
                             <tr>
-                                <td>VooPoo Drag X</td>
-                                <td>Devices</td>
-                                <td>$23,250.00</td>
-                                <td>465</td>
-                                <td>$50.00</td>
-                                <td>18.5%</td>
+                                <td>{{ product.Name }}</td>
+                                <td>{{ product.Category_Name }}</td>
+                                <td>${{ "{:,.2f}".format(product.Net_Sales) }}</td>
+                                <td>{{ "{:,}".format(product.Sold) }}</td>
+                                <td>${{ "{:.2f}".format(product.Avg_Price) }}</td>
+                                <td>{{ "{:.1f}%".format(product.Revenue_Share) }}</td>
                             </tr>
-                            <tr>
-                                <td>SMOK Nord 4</td>
-                                <td>Devices</td>
-                                <td>$16,100.00</td>
-                                <td>412</td>
-                                <td>$39.08</td>
-                                <td>12.8%</td>
-                            </tr>
-                            <tr>
-                                <td>Geekvape Aegis Legend</td>
-                                <td>Devices</td>
-                                <td>$12,825.00</td>
-                                <td>285</td>
-                                <td>$45.00</td>
-                                <td>10.2%</td>
-                            </tr>
-                            <tr>
-                                <td>Uwell Caliburn G</td>
-                                <td>Pods</td>
-                                <td>$12,250.00</td>
-                                <td>387</td>
-                                <td>$31.65</td>
-                                <td>9.7%</td>
-                            </tr>
-                            <tr>
-                                <td>Vaporesso XROS</td>
-                                <td>Pods</td>
-                                <td>$10,440.00</td>
-                                <td>332</td>
-                                <td>$31.45</td>
-                                <td>8.3%</td>
-                            </tr>
-                            <tr>
-                                <td>Juul Device Kit</td>
-                                <td>Pods</td>
-                                <td>$8,750.00</td>
-                                <td>250</td>
-                                <td>$35.00</td>
-                                <td>7.0%</td>
-                            </tr>
-                            <tr>
-                                <td>Vaporesso Gen S</td>
-                                <td>Devices</td>
-                                <td>$7,500.00</td>
-                                <td>150</td>
-                                <td>$50.00</td>
-                                <td>6.0%</td>
-                            </tr>
-                            <tr>
-                                <td>Naked 100 E-Liquid</td>
-                                <td>E-Liquids</td>
-                                <td>$6,240.00</td>
-                                <td>312</td>
-                                <td>$20.00</td>
-                                <td>5.0%</td>
-                            </tr>
-                            <tr>
-                                <td>Lost Vape Orion</td>
-                                <td>Pods</td>
-                                <td>$5,760.00</td>
-                                <td>120</td>
-                                <td>$48.00</td>
-                                <td>4.6%</td>
-                            </tr>
-                            <tr>
-                                <td>SMOK RPM40</td>
-                                <td>Pods</td>
-                                <td>$5,250.00</td>
-                                <td>175</td>
-                                <td>$30.00</td>
-                                <td>4.2%</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -344,14 +247,16 @@
             <div class="available-periods">
                 <h3>Available Data Periods</h3>
                 <div class="timeline">
+                    {% for year, months in years_dict.items() %}
                     <div class="year-group">
-                        <div class="year">2024</div>
+                        <div class="year">{{ year }}</div>
                         <div class="months">
-                            <div class="month">Jan</div>
-                            <div class="month">Feb</div>
-                            <div class="month">Mar</div>
+                            {% for month in months %}
+                            <div class="month">{{ month }}</div>
+                            {% endfor %}
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </main>
@@ -362,24 +267,34 @@
             // Revenue Distribution Chart - Top 5 vs Others
             const revenueDistributionCtx = document.getElementById('revenueDistributionChart').getContext('2d');
             
-            // Sample data
-            const productData = [
-                { name: "VooPoo Drag X", revenue: 23250, revenueShare: 18.5 },
-                { name: "SMOK Nord 4", revenue: 16100, revenueShare: 12.8 },
-                { name: "Geekvape Aegis Legend", revenue: 12825, revenueShare: 10.2 },
-                { name: "Uwell Caliburn G", revenue: 12250, revenueShare: 9.7 },
-                { name: "Vaporesso XROS", revenue: 10440, revenueShare: 8.3 },
-                { name: "Others", revenue: 50885, revenueShare: 40.5 }
+            // Get top 5 products and sum of others
+            const productMetrics = [
+                {% for product in product_metrics|sort(attribute='Net_Sales', reverse=True) %}
+                {
+                    name: "{{ product.Name }}",
+                    revenue: {{ product.Net_Sales }},
+                    revenueShare: {{ product.Revenue_Share }}
+                },
+                {% endfor %}
             ];
             
-            const totalRevenue = 125750;
+            const top5Products = productMetrics.slice(0, 5);
+            const othersRevenue = productMetrics.slice(5).reduce((sum, product) => sum + product.revenue, 0);
+            const totalRevenue = productMetrics.reduce((sum, product) => sum + product.revenue, 0);
+            const othersShare = (othersRevenue / totalRevenue) * 100;
             
             const revenueDistributionChart = new Chart(revenueDistributionCtx, {
                 type: 'pie',
                 data: {
-                    labels: productData.map(p => p.name),
+                    labels: [
+                        ...top5Products.map(p => p.name),
+                        'Others'
+                    ],
                     datasets: [{
-                        data: productData.map(p => p.revenue),
+                        data: [
+                            ...top5Products.map(p => p.revenue),
+                            othersRevenue
+                        ],
                         backgroundColor: [
                             '#4A6FDC', '#6C8EE3', '#8FACEA', '#B1CAF1', '#D3E9F8',
                             '#CCCCCC'
@@ -412,13 +327,23 @@
             
             // Create price distribution data
             const priceTiers = [
-                { label: '$0-$10', count: 5 },
-                { label: '$10-$20', count: 12 },
-                { label: '$20-$30', count: 18 },
-                { label: '$30-$40', count: 25 },
-                { label: '$40-$50', count: 20 },
-                { label: '$50+', count: 6 }
+                { label: '$0-$10', count: 0 },
+                { label: '$10-$20', count: 0 },
+                { label: '$20-$30', count: 0 },
+                { label: '$30-$40', count: 0 },
+                { label: '$40-$50', count: 0 },
+                { label: '$50+', count: 0 }
             ];
+            
+            productMetrics.forEach(product => {
+                const price = product.revenue / (product.revenueShare * totalRevenue / 100);
+                if (price < 10) priceTiers[0].count++;
+                else if (price < 20) priceTiers[1].count++;
+                else if (price < 30) priceTiers[2].count++;
+                else if (price < 40) priceTiers[3].count++;
+                else if (price < 50) priceTiers[4].count++;
+                else priceTiers[5].count++;
+            });
             
             const priceDistributionChart = new Chart(priceDistributionCtx, {
                 type: 'bar',
@@ -455,13 +380,35 @@
             // Product Pricing Tiers Chart
             const pricingTiersCtx = document.getElementById('pricingTiersChart').getContext('2d');
             
-            // Sample pricing tiers data
+            // Calculate pricing tiers
             const productsByPrice = [
-                { label: 'Budget (<$15)', count: 12, revenue: 8500 },
-                { label: 'Mid-range ($15-$30)', count: 25, revenue: 28750 },
-                { label: 'Premium ($30-$50)', count: 40, revenue: 65000 },
-                { label: 'Luxury ($50+)', count: 9, revenue: 23500 }
+                { label: 'Budget (<$15)', count: 0, revenue: 0 },
+                { label: 'Mid-range ($15-$30)', count: 0, revenue: 0 },
+                { label: 'Premium ($30-$50)', count: 0, revenue: 0 },
+                { label: 'Luxury ($50+)', count: 0, revenue: 0 }
             ];
+            
+            productMetrics.forEach(product => {
+                // Use actual Avg_Price if available from product_metrics
+                const avgPrice = product.revenue / (product.revenueShare * totalRevenue / 100);
+                
+                if (avgPrice < 15) {
+                    productsByPrice[0].count++;
+                    productsByPrice[0].revenue += product.revenue;
+                }
+                else if (avgPrice < 30) {
+                    productsByPrice[1].count++;
+                    productsByPrice[1].revenue += product.revenue;
+                }
+                else if (avgPrice < 50) {
+                    productsByPrice[2].count++;
+                    productsByPrice[2].revenue += product.revenue;
+                }
+                else {
+                    productsByPrice[3].count++;
+                    productsByPrice[3].revenue += product.revenue;
+                }
+            });
             
             const pricingTiersChart = new Chart(pricingTiersCtx, {
                 type: 'bar',
@@ -520,21 +467,8 @@
             // Product Matrix Chart (Scatter Plot)
             const productMatrixCtx = document.getElementById('productMatrixChart').getContext('2d');
             
-            // Sample product matrix data
-            const topProducts = [
-                { name: "VooPoo Drag X", revenue: 23250, revenueShare: 18.5 },
-                { name: "SMOK Nord 4", revenue: 16100, revenueShare: 12.8 },
-                { name: "Geekvape Aegis Legend", revenue: 12825, revenueShare: 10.2 },
-                { name: "Uwell Caliburn G", revenue: 12250, revenueShare: 9.7 },
-                { name: "Vaporesso XROS", revenue: 10440, revenueShare: 8.3 },
-                { name: "Juul Device Kit", revenue: 8750, revenueShare: 7.0 },
-                { name: "Vaporesso Gen S", revenue: 7500, revenueShare: 6.0 },
-                { name: "Naked 100 E-Liquid", revenue: 6240, revenueShare: 5.0 },
-                { name: "Lost Vape Orion", revenue: 5760, revenueShare: 4.6 },
-                { name: "SMOK RPM40", revenue: 5250, revenueShare: 4.2 }
-            ];
-            
-            const scatterData = topProducts.map(product => ({
+            // Prepare data for scatter plot - top 30 products
+            const scatterData = productMetrics.slice(0, 30).map(product => ({
                 x: product.revenue,
                 y: product.revenueShare,
                 name: product.name

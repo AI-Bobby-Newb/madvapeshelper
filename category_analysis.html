@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category Analysis - Vape Store Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
@@ -15,27 +15,30 @@
                 <h2>Vape Store</h2>
             </div>
             <ul class="nav-links">
-                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="monthly_analysis.html"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
-                <li><a href="product_analysis.html"><i class="fas fa-box"></i> Product Analysis</a></li>
-                <li class="active"><a href="category_analysis.html"><i class="fas fa-tags"></i> Category Analysis</a></li>
-                <li><a href="top_products.html"><i class="fas fa-trophy"></i> Top Products</a></li>
-                <li><a href="business_insights.html"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
+                <li><a href="/"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/monthly_analysis"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
+                <li><a href="/product_analysis"><i class="fas fa-box"></i> Product Analysis</a></li>
+                <li class="active"><a href="/category_analysis"><i class="fas fa-tags"></i> Category Analysis</a></li>
+                <li><a href="/top_products"><i class="fas fa-trophy"></i> Top Products</a></li>
+                <li><a href="/business_insights"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
             </ul>
             <div class="data-quality">
                 <div class="quality-score">
-                    <div class="score-circle" style="--percent: 85%">
-                        <span>85%</span>
+                    <div class="score-circle" style="--percent: {{ quality_score }}%">
+                        <span>{{ quality_score }}%</span>
                     </div>
                     <h4>Data Quality</h4>
                 </div>
+                {% if quality_warnings %}
                 <div class="quality-warnings">
                     <h5>Warnings:</h5>
                     <ul>
-                        <li>Data is 2 months old</li>
-                        <li>1 missing month in data</li>
+                        {% for warning in quality_warnings %}
+                        <li>{{ warning }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </nav>
 
@@ -45,126 +48,129 @@
                     <h1>Category Analysis</h1>
                     <div class="time-period">
                         <span>Data Period: </span>
-                        <span class="highlight">Jan 2024 - Mar 2024</span>
+                        {% if months %}
+                        <span class="highlight">{{ months[0] }} - {{ months[-1] }}</span>
+                        {% else %}
+                        <span class="highlight">No data available</span>
+                        {% endif %}
                     </div>
                 </div>
             </header>
 
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Top Category</h3>
+                        {% if category_data|length > 0 %}
+                        <p class="stat-value">{{ category_data[0].Category_Name }}</p>
+                        <p class="stat-subtext">${{ "{:,.2f}".format(category_data[0].Net_Sales) }}</p>
+                        {% else %}
+                        <p class="stat-value">No data</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Top Category Share</h3>
+                        {% if category_data|length > 0 %}
+                        <p class="stat-value">{{ "{:.1f}%".format(category_data[0].Percent_of_Sales) }}</p>
+                        {% else %}
+                        <p class="stat-value">0%</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Highest Avg Price</h3>
+                        {% if category_data|length > 0 %}
+                        {% set highest_price = category_data|sort(attribute='Avg_Price', reverse=True)|first %}
+                        <p class="stat-value">{{ highest_price.Category_Name }}</p>
+                        <p class="stat-subtext">${{ "{:.2f}".format(highest_price.Avg_Price) }}</p>
+                        {% else %}
+                        <p class="stat-value">No data</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Total Categories</h3>
+                        {% if category_data %}
+                        <p class="stat-value">{{ category_data|length }}</p>
+                        {% else %}
+                        <p class="stat-value">0</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
             <div class="charts-grid">
                 <div class="chart-container">
-                    <h2>Category Sales Distribution</h2>
-                    <canvas id="categorySalesChart"></canvas>
+                    <h2>Category Revenue Distribution</h2>
+                    <canvas id="categoryRevenueChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h2>Category Units Sold</h2>
+                    <h2>Category Units Distribution</h2>
                     <canvas id="categoryUnitsChart"></canvas>
                 </div>
             </div>
 
-            <div class="table-container">
+            <div class="table-container full-width">
                 <h2>Category Performance</h2>
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Category</th>
-                            <th>Net Sales</th>
+                            <th>Revenue</th>
+                            <th>% of Total</th>
                             <th>Units Sold</th>
+                            <th>Avg. Price</th>
                             <th>Product Count</th>
-                            <th>Avg Price</th>
-                            <th>% of Sales</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for category in category_data %}
                         <tr>
-                            <td>Devices</td>
-                            <td>$52,750.00</td>
-                            <td>1,160</td>
-                            <td>25</td>
-                            <td>$45.47</td>
-                            <td>42.0%</td>
+                            <td>{{ category.Category_Name }}</td>
+                            <td>${{ "{:,.2f}".format(category.Net_Sales) }}</td>
+                            <td>{{ "{:.1f}%".format(category.Percent_of_Sales) }}</td>
+                            <td>{{ "{:,}".format(category.Sold) }}</td>
+                            <td>${{ "{:.2f}".format(category.Avg_Price) }}</td>
+                            <td>{{ category.Products }}</td>
                         </tr>
-                        <tr>
-                            <td>Pods</td>
-                            <td>$36,690.00</td>
-                            <td>1,200</td>
-                            <td>18</td>
-                            <td>$30.58</td>
-                            <td>29.2%</td>
-                        </tr>
-                        <tr>
-                            <td>E-Liquids</td>
-                            <td>$23,310.00</td>
-                            <td>1,350</td>
-                            <td>28</td>
-                            <td>$17.27</td>
-                            <td>18.5%</td>
-                        </tr>
-                        <tr>
-                            <td>Accessories</td>
-                            <td>$7,500.00</td>
-                            <td>325</td>
-                            <td>15</td>
-                            <td>$23.08</td>
-                            <td>6.0%</td>
-                        </tr>
-                        <tr>
-                            <td>Coils</td>
-                            <td>$5,500.00</td>
-                            <td>200</td>
-                            <td>10</td>
-                            <td>$27.50</td>
-                            <td>4.4%</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
-            </div>
-
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h2>Average Price by Category</h2>
-                    <canvas id="categoryPriceChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h2>Product Count by Category</h2>
-                    <canvas id="productCountChart"></canvas>
-                </div>
-            </div>
-
-            <div class="available-periods">
-                <h3>Available Data Periods</h3>
-                <div class="timeline">
-                    <div class="year-group">
-                        <div class="year">2024</div>
-                        <div class="months">
-                            <div class="month">Jan</div>
-                            <div class="month">Feb</div>
-                            <div class="month">Mar</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Category data
-            const categories = ['Devices', 'Pods', 'E-Liquids', 'Accessories', 'Coils'];
-            const sales = [52750, 36690, 23310, 7500, 5500];
-            const units = [1160, 1200, 1350, 325, 200];
-            const avgPrices = [45.47, 30.58, 17.27, 23.08, 27.50];
-            const productCounts = [25, 18, 28, 15, 10];
-            
-            // Category Sales Chart
-            const categorySalesCtx = document.getElementById('categorySalesChart').getContext('2d');
-            const categorySalesChart = new Chart(categorySalesCtx, {
-                type: 'pie',
+            // Category Revenue Chart
+            const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+            const categoryRevenueChart = new Chart(categoryRevenueCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: categories,
+                    labels: [{% for category in category_data %}'{{ category.Category_Name }}',{% endfor %}],
                     datasets: [{
-                        data: sales,
+                        data: [{% for category in category_data %}{{ category.Net_Sales }},{% endfor %}],
                         backgroundColor: [
-                            '#4A6FDC', '#6C8EE3', '#8FACEA', '#B1CAF1', '#D3E9F8'
+                            '#4A6FDC', '#6C8EE3', '#8FACEA', '#B1CAF1', '#D3E9F8',
+                            '#34C759', '#5ED97C', '#88E29F', '#B2EAC2', '#DCF5E5',
+                            '#FF9500', '#FFA733', '#FFB966', '#FFCC99', '#FFDDCC',
+                            '#FF3B30', '#FF6259', '#FF8982', '#FFAFAC', '#FFD5D5'
                         ],
                         borderWidth: 1
                     }]
@@ -175,6 +181,9 @@
                     plugins: {
                         legend: {
                             position: 'right',
+                            labels: {
+                                boxWidth: 12
+                            }
                         },
                         tooltip: {
                             callbacks: {
@@ -193,13 +202,17 @@
             // Category Units Chart
             const categoryUnitsCtx = document.getElementById('categoryUnitsChart').getContext('2d');
             const categoryUnitsChart = new Chart(categoryUnitsCtx, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
-                    labels: categories,
+                    labels: [{% for category in category_data %}'{{ category.Category_Name }}',{% endfor %}],
                     datasets: [{
-                        label: 'Units Sold',
-                        data: units,
-                        backgroundColor: '#6C8EE3',
+                        data: [{% for category in category_data %}{{ category.Sold }},{% endfor %}],
+                        backgroundColor: [
+                            '#4A6FDC', '#6C8EE3', '#8FACEA', '#B1CAF1', '#D3E9F8',
+                            '#34C759', '#5ED97C', '#88E29F', '#B2EAC2', '#DCF5E5',
+                            '#FF9500', '#FFA733', '#FFB966', '#FFCC99', '#FFDDCC',
+                            '#FF3B30', '#FF6259', '#FF8982', '#FFAFAC', '#FFD5D5'
+                        ],
                         borderWidth: 1
                     }]
                 },
@@ -208,89 +221,19 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString();
-                                }
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12
                             }
-                        }
-                    }
-                }
-            });
-
-            // Category Average Price Chart
-            const categoryPriceCtx = document.getElementById('categoryPriceChart').getContext('2d');
-            const categoryPriceChart = new Chart(categoryPriceCtx, {
-                type: 'bar',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        label: 'Average Price ($)',
-                        data: avgPrices,
-                        backgroundColor: '#8FACEA',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `Avg Price: $${context.raw.toFixed(2)}`;
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${value.toLocaleString()} units (${percentage}%)`;
                                 }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toFixed(2);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Product Count Chart
-            const productCountCtx = document.getElementById('productCountChart').getContext('2d');
-            const productCountChart = new Chart(productCountCtx, {
-                type: 'bar',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        label: 'Product Count',
-                        data: productCounts,
-                        backgroundColor: '#B1CAF1',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
                             }
                         }
                     }
