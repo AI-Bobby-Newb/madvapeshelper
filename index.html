@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vape Store Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <h2>Vape Store</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="monthly_analysis.html"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
+                <li><a href="product_analysis.html"><i class="fas fa-box"></i> Product Analysis</a></li>
+                <li><a href="category_analysis.html"><i class="fas fa-tags"></i> Category Analysis</a></li>
+                <li><a href="top_products.html"><i class="fas fa-trophy"></i> Top Products</a></li>
+                <li><a href="business_insights.html"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
+            </ul>
+            <div class="data-quality">
+                <div class="quality-score">
+                    <div class="score-circle" style="--percent: 85%">
+                        <span>85%</span>
+                    </div>
+                    <h4>Data Quality</h4>
+                </div>
+                <div class="quality-warnings">
+                    <h5>Warnings:</h5>
+                    <ul>
+                        <li>Data is 2 months old</li>
+                        <li>1 missing month in data</li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="content">
+            <header>
+                <div class="header-content">
+                    <h1>Dashboard Overview</h1>
+                    <div class="time-period">
+                        <span>Data Period: </span>
+                        <span class="highlight">Jan 2024 - Mar 2024</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Total Sales</h3>
+                        <p class="stat-value">$125,750.00</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Units Sold</h3>
+                        <p class="stat-value">4,235</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Avg Price</h3>
+                        <p class="stat-value">$29.69</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3>Products</h3>
+                        <p class="stat-value">86</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h2>Monthly Sales</h2>
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Top Categories</h2>
+                    <canvas id="categoriesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="tables-grid">
+                <div class="table-container">
+                    <h2>Top Products by Revenue</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VooPoo Drag X</td>
+                                <td>$23,250.00</td>
+                            </tr>
+                            <tr>
+                                <td>SMOK Nord 4</td>
+                                <td>$16,100.00</td>
+                            </tr>
+                            <tr>
+                                <td>Geekvape Aegis Legend</td>
+                                <td>$12,825.00</td>
+                            </tr>
+                            <tr>
+                                <td>Uwell Caliburn G</td>
+                                <td>$12,250.00</td>
+                            </tr>
+                            <tr>
+                                <td>Vaporesso XROS</td>
+                                <td>$10,440.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-container">
+                    <h2>Top Products by Units</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Units Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VooPoo Drag X</td>
+                                <td>465</td>
+                            </tr>
+                            <tr>
+                                <td>SMOK Nord 4</td>
+                                <td>412</td>
+                            </tr>
+                            <tr>
+                                <td>Uwell Caliburn G</td>
+                                <td>387</td>
+                            </tr>
+                            <tr>
+                                <td>Vaporesso XROS</td>
+                                <td>332</td>
+                            </tr>
+                            <tr>
+                                <td>Naked 100 E-Liquid</td>
+                                <td>312</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="available-periods">
+                <h3>Available Data Periods</h3>
+                <div class="timeline">
+                    <div class="year-group">
+                        <div class="year">2024</div>
+                        <div class="months">
+                            <div class="month">Jan</div>
+                            <div class="month">Feb</div>
+                            <div class="month">Mar</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Set up charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Monthly Sales Chart
+            const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+            const monthlySalesChart = new Chart(monthlySalesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan 2024', 'Feb 2024', 'Mar 2024'],
+                    datasets: [{
+                        label: 'Net Sales ($)',
+                        data: [38500, 42300, 44950],
+                        borderColor: '#4A6FDC',
+                        backgroundColor: 'rgba(74, 111, 220, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Sales: $${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Categories Chart
+            const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+            const categoriesChart = new Chart(categoriesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Devices', 'Pods', 'E-Liquids', 'Accessories', 'Coils'],
+                    datasets: [{
+                        label: 'Net Sales',
+                        data: [52750, 36690, 23310, 7500, 5500],
+                        backgroundColor: [
+                            '#4A6FDC', '#6C8EE3', '#8FACEA', '#B1CAF1', '#D3E9F8'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `$${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Analysis - Vape Store Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo-container">
+                <h2>Vape Store</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="monthly_analysis.html"><i class="fas fa-chart-line"></i> Monthly Analysis</a></li>
+                <li class="active"><a href="product_analysis.html"><i class="fas fa-box"></i> Product Analysis</a></li>
+                <li><a href="category_analysis.html"><i class="fas fa-tags"></i> Category Analysis</a></li>
+                <li><a href="top_products.html"><i class="fas fa-trophy"></i> Top Products</a></li>
+                <li><a href="business_insights.html"><i class="fas fa-lightbulb"></i> Business Insights</a></li>
+            </ul>
+            <div class="data-quality">
+                <div class="quality-score">
+                    <div class="score-circle" style="--percent: 85%">
+                        <span>85%</span>
+                    </div>
+                    <h4>Data Quality</h4>
+                </div>
+                <div class="quality-warnings">
+                    <h5>Warnings:</h5>
+                    <ul>
+                        <li>Data is 2 months old</li>
+                        <li>1 missing month in data</li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="content">
+            <header>
+                <div class="header-content">
+                    <h1>Product Analysis</h1>
+                    <div class="time-period">
+                        <span>Data Period: </span>
+                        <span class="highlight">Jan 2024 - Mar 2024</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h2>Top 10 Products by Revenue</h2>
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Products by Price Range</h2>
+                    <canvas id="productPriceRangeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <h2>Top Products Performance</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Net Sales</th>
+                            <th>Units Sold</th>
+                            <th>Avg Price</th>
+                            <th>Revenue Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>VooPoo Drag X</td>
+                            <td>Devices</td>
+                            <td>$23,250.00</td>
+                            <td>465</td>
+                            <td>$50.00</td>
+                            <td>18.5%</td>
+                        </tr>
+                        <tr>
+                            <td>SMOK Nord 4</td>
+                            <td>Devices</td>
+                            <td>$16,100.00</td>
+                            <td>412</td>
+                            <td>$39.08</td>
+                            <td>12.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Geekvape Aegis Legend</td>
+                            <td>Devices</td>
+                            <td>$12,825.00</td>
+                            <td>285</td>
+                            <td>$45.00</td>
+                            <td>10.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Uwell Caliburn G</td>
+                            <td>Pods</td>
+                            <td>$12,250.00</td>
+                            <td>387</td>
+                            <td>$31.65</td>
+                            <td>9.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Vaporesso XROS</td>
+                            <td>Pods</td>
+                            <td>$10,440.00</td>
+                            <td>332</td>
+                            <td>$31.45</td>
+                            <td>8.3%</td>
+                        </tr>
+                        <tr>
+                            <td>Juul Device Kit</td>
+                            <td>Pods</td>
+                            <td>$8,750.00</td>
+                            <td>250</td>
+                            <td>$35.00</td>
+                            <td>7.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Vaporesso Gen S</td>
+                            <td>Devices</td>
+                            <td>$7,500.00</td>
+                            <td>150</td>
+                            <td>$50.00</td>
+                            <td>6.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Naked 100 E-Liquid</td>
+                            <td>E-Liquids</td>
+                            <td>$6,240.00</td>
+                            <td>312</td>
+                            <td>$20.00</td>
+                            <td>5.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Lost Vape Orion</td>
+                            <td>Pods</td>
+                            <td>$5,760.00</td>
+                            <td>120</td>
+                            <td>$48.00</td>
+                            <td>4.6%</td>
+                        </tr>
+                        <tr>
+                            <td>SMOK RPM40</td>
+                            <td>Pods</td>
+                            <td>$5,250.00</td>
+                            <td>175</td>
+                            <td>$30.00</td>
+                            <td>4.2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="available-periods">
+                <h3>Available Data Periods</h3>
+                <div class="timeline">
+                    <div class="year-group">
+                        <div class="year">2024</div>
+                        <div class="months">
+                            <div class="month">Jan</div>
+                            <div class="month">Feb</div>
+                            <div class="month">Mar</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Top Products Chart
+            const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+            const topProductsChart = new Chart(topProductsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['VooPoo Drag X', 'SMOK Nord 4', 'Geekvape Aegis Legend', 'Uwell Caliburn G', 'Vaporesso XROS', 'Juul Device Kit', 'Vaporesso Gen S', 'Naked 100 E-Liquid', 'Lost Vape Orion', 'SMOK RPM40'],
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: [23250, 16100, 12825, 12250, 10440, 8750, 7500, 6240, 5760, 5250],
+                        backgroundColor: '#4A6FDC',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Revenue: $${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Product Price Range Chart
+            const productPriceRangeCtx = document.getElementById('productPriceRangeChart').getContext('2d');
+            const productPriceRangeChart = new Chart(productPriceRangeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['$0-$10', '$10-$20', '$20-$30', '$30-$40', '$40-$50', '$50+'],
+                    datasets: [{
+                        label: 'Number of Products',
+                        data: [5, 12, 18, 25, 20, 6],
+                        backgroundColor: '#6C8EE3',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
